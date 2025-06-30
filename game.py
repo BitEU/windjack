@@ -1,9 +1,12 @@
+python
 from uuid import uuid4
 from src.display_util import DisplayTable
 from src.constants import *
 from src.objects import Card, Player, Dealer
 from random import randint
 import curses
+import sys
+import platform
 
 class Game:
 	def __init__(self, stdscr):
@@ -72,7 +75,12 @@ class Game:
 			bet = ""
 			while(not bet.isdigit() or int(bet) > player.money
 					or int(bet) < BET_MIN or int(bet) > BET_MAX):
-				bet = self.screen.getstr()
+				# Windows-specific: decode bytes to string
+				bet_input = self.screen.getstr()
+				if isinstance(bet_input, bytes):
+					bet = bet_input.decode('utf-8')
+				else:
+					bet = bet_input
 				self.display.set_state("betting_error")
 			self.display.set_state("betting")
 			player.make_bet(bet)
@@ -186,11 +194,26 @@ class Game:
 
 
 def main(stdscr):
+	# Clear screen and set up colors
+	stdscr.clear()
 	init_colors()
+	
+	# Windows-specific settings
+	if platform.system() == 'Windows':
+		# Enable keypad for special keys
+		stdscr.keypad(True)
+		# No delay for escape sequences
+		curses.set_escdelay(25)
+	
 	game = Game(stdscr)
 	game.run()
 
 if __name__ == '__main__':
-	stdscr = curses.initscr()
-	curses.wrapper(main)	
-
+	try:
+		curses.wrapper(main)
+	except KeyboardInterrupt:
+		print("\nGame interrupted by user")
+		sys.exit(0)
+	except Exception as e:
+		print(f"\nAn error occurred: {e}")
+		sys.exit(1)

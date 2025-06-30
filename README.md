@@ -1,39 +1,32 @@
-# Terminal BlackJack
-
-Terminal blackjack is a blackjack game that can be played entirely in the linux terminal. Made with python and ncurses
-
-![Demo](https://raw.githubusercontent.com/Justinyu1618/terminal_blackjack/master/img/demo.png)
-
-## Setup
-This app uses Python default libraries. As long as you have Python you shouldn't need any setup.
-
-## Running
-In the root directory, run `python3 game.py`
-This should start up an instance of the game.
-
-
-
-
 ## Terminal BlackJack Design Doc
 
 ### Overview
 
-Ths goal is to create a BlackJack game that operates solely in the terminal. This game should support multiplayer and most of the standard rules and strategies of Blackjack.
-
-
+This goal is to create a BlackJack game that operates solely in the Windows terminal. This game supports multiplayer and most of the standard rules and strategies of Blackjack.
 
 ### Tools Used
 
-This game is written in Python. It uses Python&#39;s built in libraries, and no other 3rd party packages. I specifically used the _ncurses_ library to generate ascii terminal graphics.
+This game is written in Python. It uses Python's built-in libraries and the `windows-curses` package for Windows compatibility. The `windows-curses` package provides pdcurses functionality for Windows terminals.
+
+### Windows-Specific Changes
+
+1. **Curses Library**: Uses `windows-curses` package which provides pdcurses for Windows
+2. **Character Encoding**: Handles Windows string encoding properly (UTF-8 decode for getstr())
+3. **Card Symbols**: Uses Windows-compatible Unicode characters (♦♠♥♣)
+4. **Avatar Characters**: Limited to A-Z for better Windows terminal compatibility
+5. **Error Handling**: Added try-except blocks for curses operations to handle Windows terminal quirks
+6. **Color Initialization**: Added color support check and use_default_colors() for better terminal compatibility
+7. **Window Dimensions**: Added validation to ensure positive dimensions for derwin()
+8. **Safe Drawing**: Implemented safe_addstr() method to prevent boundary errors
 
 ### Design Considerations
 
-- There must be a separation between gameplay and displaying graphics. Displaying graphics in terminal can be annoying and have some unforeseen effects, it&#39;s better if all display functionality is abstracted away
+- There must be a separation between gameplay and displaying graphics. Displaying graphics in terminal can be annoying and have some unforeseen effects, it's better if all display functionality is abstracted away
 - A dealer in this game is similar to a player but with special game mechanics. Dealers can just be a subclass of Player.
 - The terminal window size is crucial because this could introduce a lot of potential bugs.
-  - _Ncurses_ works by drawing strings at specific coordinates in the terminal. If the coordinate is outside the bounds, _ncurses_ will throw an exception
+  - _PDCurses_ works by drawing strings at specific coordinates in the terminal. If the coordinate is outside the bounds, _PDCurses_ will throw an exception
   - The size of the board and tables must be adaptable to the size of the terminal window so that objects are not either too small or get cut off and throw the aforementioned exception.
-  - The solution to this was to divide up player areas into &quot;Partitions&quot;, and have a seperate &quot;PartitionsManager&quot; class to handle resizing of Partitions
+  - The solution to this was to divide up player areas into "Partitions", and have a separate "PartitionsManager" class to handle resizing of Partitions
 - Cards may be hard to represent given the space constraints described above, because there is a potentially large number of cards each player can be dealt (bounded at 12 cards). Therefore, Cards must be displayed in a way that can be resized based on available space.
 
 ### Structure
@@ -49,8 +42,8 @@ This game is written in Python. It uses Python&#39;s built in libraries, and no 
   - `start()`
   - `gameplay()`
     - Runs the gameplay past the start screen and before end screen
-    - States: &quot;betting&quot;, &quot;dealing&quot;, &quot;turn&quot;, &quot;scoring&quot;
-  - `end()` -\&gt; &quot;Keep Playing?&quot; [Bool]
+    - States: "betting", "dealing", "turn", "scoring"
+  - `end()` -> "Keep Playing?" [Bool]
 
 #### Card:
 
@@ -65,14 +58,14 @@ This game is written in Python. It uses Python&#39;s built in libraries, and no 
 - Each Player object corresponds to a PlayerPartition object in the DisplayTable
 - Methods:
   - `add_card(card)`
-    - Adds card to the player&#39;s hand
+    - Adds card to the player's hand
   - `make_bet (amount)`
-    - &quot;Makes the bet&quot; by modifying bet and score varaibles
+    - "Makes the bet" by modifying bet and score variables
   - `win(), lose(), standoff()`
     - Used to handle each of the three cases that describe a player when comparing their decks to the dealer.
   - `sums()`
     - Calculate all the possible sums of cards that exist
-    - For each &#39;A&#39;, double the list of possibilities with half being &quot;A&quot;=1 or &quot;A&quot;=11.
+    - For each 'A', double the list of possibilities with half being "A"=1 or "A"=11.
 
 #### Dealer (Player):
 
@@ -87,7 +80,7 @@ This game is written in Python. It uses Python&#39;s built in libraries, and no 
 
 #### PlayerPartition:
 
-- Grid space on the terminal is divided into &quot;partitions&quot;, one for each player. Each partition consists of the player&#39;s name, avatar, a score, a bet, and the cards that player holds.
+- Grid space on the terminal is divided into "partitions", one for each player. Each partition consists of the player's name, avatar, a score, a bet, and the cards that player holds.
 - Methods:
   - `get_coords()`:
     - Returns the relative coordinates of each element in the partition based on the initial base coordinates of the partition.
@@ -100,7 +93,7 @@ This game is written in Python. It uses Python&#39;s built in libraries, and no 
       - Adds player partition to partition manager
       - Also resize all other player partitions to fit the new partition
     - `remove_player(self, player_id)`
-      - Removs player with player.id = player_id
+      - Removes player with player.id = player_id
     - 
 
 #### DisplayTable:
@@ -110,7 +103,7 @@ This game is written in Python. It uses Python&#39;s built in libraries, and no 
   - `refresh()`
     - Refreshes interface and updates all components
   - `print()`
-    - Helper function to print text directly into text window, helpful so that there doesn&#39;t need to be a separate state for these messages
+    - Helper function to print text directly into text window, helpful so that there doesn't need to be a separate state for these messages
   - `add_player()`
     - Adds player to internal representation of display
   - `remove_player()`
@@ -118,8 +111,10 @@ This game is written in Python. It uses Python&#39;s built in libraries, and no 
   - `set_dealer()`
     - Sets the dealer object in display
   - `draw_player(player)`
-    - Draws the partition corresponding to &quot;player&quot;, according to the coordinates given by Partition and PartitionManager
+    - Draws the partition corresponding to "player", according to the coordinates given by Partition and PartitionManager
   - `draw_dealer()`
     - Draws dealer partition
   - `draw_game_menus()`
     - Draws items related to the game progression depending on the state of the game
+  - `safe_addstr()`
+    - Windows-specific method to safely add strings without boundary errors

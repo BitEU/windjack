@@ -32,12 +32,17 @@ class SUIT(Enum):
 	C = "clubs"
 
 def init_colors():
-	curses.init_pair(COLOR.CARD_BG.value, curses.COLOR_RED, curses.COLOR_WHITE)
-	curses.init_pair(COLOR.CARD_RED.value, curses.COLOR_RED, curses.COLOR_WHITE)
-	curses.init_pair(COLOR.CARD_BLACK.value, curses.COLOR_BLACK, curses.COLOR_WHITE)
-	curses.init_pair(COLOR.P1.value, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-	curses.init_pair(COLOR.P2.value, curses.COLOR_BLUE, curses.COLOR_BLACK)
-	curses.init_pair(COLOR.P3.value, curses.COLOR_CYAN, curses.COLOR_BLACK)
-	curses.init_pair(COLOR.P4.value, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-	curses.init_pair(COLOR.DEALER.value, curses.COLOR_RED, curses.COLOR_BLACK)
-	
+	# Check if terminal supports colors
+	if curses.has_colors():
+		curses.start_color()
+		# Use default background for better Windows terminal compatibility
+		curses.use_default_colors()
+		
+		curses.init_pair(COLOR.CARD_BG.value, curses.COLOR_RED, curses.COLOR_WHITE)
+		curses.init_pair(COLOR.CARD_RED.value, curses.COLOR_RED, curses.COLOR_WHITE)
+		curses.init_pair(COLOR.CARD_BLACK.value, curses.COLOR_BLACK, curses.COLOR_WHITE)
+		curses.init_pair(COLOR.P1.value, curses.COLOR_YELLOW, -1)
+		curses.init_pair(COLOR.P2.value, curses.COLOR_BLUE, -1)
+		curses.init_pair(COLOR.P3.value, curses.COLOR_CYAN, -1)
+		curses.init_pair(COLOR.P4.value, curses.COLOR_MAGENTA, -1)
+		curses.init_pair(COLOR.DEALER.value, curses.COLOR_RED, -1)

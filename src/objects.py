@@ -3,10 +3,11 @@ from uuid import uuid4
 from random import randint
 
 class Card:
-	suit_chars = {SUIT.D: "\u2666",
-				SUIT.S: "\u2660",
-				SUIT.H: "\u2665",
-				SUIT.C: "\u2663"}
+	# Windows-compatible card symbols
+	suit_chars = {SUIT.D: "♦",
+				SUIT.S: "♠",
+				SUIT.H: "♥",
+				SUIT.C: "♣"}
 
 	def __init__(self, suit, num, facedown=False):
 		self.suit = suit
@@ -25,7 +26,8 @@ class Player:
 		self.money = STARTING_MONEY
 		self.cards = []
 		self.color = eval(f"COLOR.{player_num}")
-		self.symbol = chr(randint(33,126))
+		# Use ASCII character that works well on Windows
+		self.symbol = chr(randint(65,90))  # A-Z instead of full ASCII range
 		self.avatar_size = 5
 		self.avatar = [(randint(0,self.avatar_size-1), randint(0,self.avatar_size-1)) for i in range(20)]
 		self.bet = 0
